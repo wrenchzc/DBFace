@@ -1,5 +1,8 @@
 
 import os
+
+import face
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 
@@ -42,7 +45,7 @@ for i in range(total_file):
 
     # load image and forward
     image = common.imread(file)
-    objs = eval_tool.detect_image(model, image, mean, std, 0.01)
+    objs = face.detect_image(model, image, mean, std, 0.01)
     #objs = eval_tool.detect_image_retinaface_style(model, image, mean, std, 0.05)
     #objs = common.nms(objs, 0.3)
     

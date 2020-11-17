@@ -84,6 +84,20 @@ class BBox:
     def iou(self, other):
         return computeIOU(self.box, other.box)
 
+    def rescale(self, rate):
+        if rate == 1:
+            return
+        conv_v = lambda x: (int(x + 1) / rate) - 1
+        self.x = conv_v(self.x)
+        self.y = conv_v(self.y)
+        self.r = conv_v(self.r)
+        self.b = conv_v(self.b)
+
+        if self.haslandmark:
+            conv_tuple = lambda tu: (conv_v(tu[0]), conv_v(tu[1]))
+            l1, l2, l3, l4, l5 = self.landmark
+            self.landmark = conv_tuple(l1), conv_tuple(l2), conv_tuple(l3), conv_tuple(l4), conv_tuple(l5)
+
 
 def computeIOU(rec1, rec2):
     cx1, cy1, cx2, cy2 = rec1

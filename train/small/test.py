@@ -5,6 +5,9 @@ import torch
 import torch.nn as nn
 from dbface import DBFace
 
+import face
+
+
 def nms(objs, iou=0.5):
 
     if objs is None or len(objs) <= 1:
@@ -37,7 +40,7 @@ model.load(f"{jobdir}/models/150.pth")
 model.eval()
 model.cuda()
 
-outs = eval_tool.detect_image(model, image, mean, std, 0.2)
+outs = face.detect_image(model, image, mean, std, 0.2)
 outs = nms(outs, 0.2)
 print("objs = %d" % len(outs))
 for obj in outs:
