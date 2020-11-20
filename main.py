@@ -28,9 +28,10 @@ def image_demo():
     do_detect_image(dbface, "datas/selfie.jpg")
     do_detect_image(dbface, "datas/12_Group_Group_12_Group_Group_12_728.jpg")
     do_detect_image(dbface, "datas/head.jpg")
-    do_detect_image(dbface, "datas/head2.jpg")
-    do_detect_image(dbface, "datas/head3.jpg")
     do_detect_image(dbface, "datas/feichi2.jpeg")
+    do_detect_image(dbface, "datas/ty1.jpg")
+    do_detect_image(dbface, "datas/gxt1.png")
+    do_detect_image(dbface, "datas/lq1.jpg")
 
 
 def camera_demo():

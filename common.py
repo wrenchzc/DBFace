@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-  
 import cv2
 import random
 import numpy as np

@@ -11,7 +11,6 @@ print(f"HAS_CUDA = {HAS_CUDA}")
 
 
 def nms(objs, iou=0.5):
-
     if objs is None or len(objs) <= 1:
         return objs
 
@@ -31,7 +30,6 @@ def nms(objs, iou=0.5):
 
 
 def detect(model, image, threshold=0.4, nms_iou=0.5) -> typing.List[common.BBox]:
-
     mean = [0.408, 0.447, 0.47]
     std = [0.289, 0.274, 0.278]
 
@@ -65,31 +63,36 @@ def detect(model, image, threshold=0.4, nms_iou=0.5) -> typing.List[common.BBox]
         x, y, r, b = box[:, cy, cx]
         xyrb = (np.array([cx, cy, cx, cy]) + [-x, -y, r, b]) * stride
         x5y5 = landmark[:, cy, cx]
-        x5y5 = (common.exp(x5y5 * 4) + ([cx]*5 + [cy]*5)) * stride
+        x5y5 = (common.exp(x5y5 * 4) + ([cx] * 5 + [cy] * 5)) * stride
         box_landmark = list(zip(x5y5[:5], x5y5[5:]))
         objs.append(common.BBox(0, xyrb=xyrb, score=score, landmark=box_landmark))
     return nms(objs, iou=nms_iou)
 
 
+def _get_resize_rate(size) -> float:
+    MAX_LONG_SIDE = 1600
+
+    h, w = size
+
+    max_side = max(h, w)
+    if max_side > MAX_LONG_SIDE:
+        return MAX_LONG_SIDE / max_side
+    else:
+        return 1
+
+
 def detect_image(model, file):
     raw_image = common.imread(file)
-    for scale_rate in [1/x for x in range(1,10)]:
-        print(f"detect image {file}, rate is {scale_rate}")
+    scale_rate = _get_resize_rate(raw_image.shape[:2])
+    image = cv2.resize(raw_image, (0, 0), fx=scale_rate, fy=scale_rate, interpolation=cv2.INTER_LINEAR)
 
-        image = raw_image
-        if scale_rate != 1:
-            image = cv2.resize(raw_image, (0,0), fx=scale_rate, fy=scale_rate, interpolation=cv2.INTER_LINEAR)
-        try:
-            bboxes = detect(model, image)
-            for bbox in bboxes:
-                print(f"before rescale , {bbox}")
-                bbox.rescale(scale_rate)
-                print(f"after rescale , {bbox}")
+    try:
+        bboxes = detect(model, image)
+        for bbox in bboxes:
+            print(f"before rescale , {bbox}")
+            bbox.rescale(scale_rate)
+            print(f"after rescale , {bbox}")
 
-            return bboxes
-        except RuntimeError:  # face too big
-            print(f"{file} run time error, out of memory")
-
-
-
-
+        return bboxes
+    except RuntimeError:  # face too big
+        print(f"{file} run time error, out of memory")
