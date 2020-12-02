@@ -6,9 +6,12 @@ from torch.nn import functional as F
 import common
 import typing
 
+from model.DBFace import DBFace
+
 HAS_CUDA = torch.cuda.is_available()
 print(f"HAS_CUDA = {HAS_CUDA}")
 
+_model_cache = {}
 
 def nms(objs, iou=0.5):
     if objs is None or len(objs) <= 1:
@@ -83,6 +86,9 @@ def _get_resize_rate(size) -> float:
 
 def detect_image(model, file):
     raw_image = common.imread(file)
+    if raw_image is None:
+        raise ValueError(f"{file} is not a image file")
+
     scale_rate = _get_resize_rate(raw_image.shape[:2])
     image = cv2.resize(raw_image, (0, 0), fx=scale_rate, fy=scale_rate, interpolation=cv2.INTER_LINEAR)
 
@@ -96,3 +102,18 @@ def detect_image(model, file):
         return bboxes
     except RuntimeError:  # face too big
         print(f"{file} run time error, out of memory")
+
+
+def _get_model():
+    if "model" in _model_cache:
+        return _model_cache["model"]
+
+    _dbface = DBFace()
+    _dbface.eval()
+
+    if HAS_CUDA:
+        _dbface.cuda()
+
+    _dbface.load("model/dbface.pth")
+    _model_cache["model"] = _dbface
+    return _dbface
