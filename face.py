@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import cv2
 from torch.nn import functional as F
+from typing import List
 
 import common
 import typing
@@ -88,7 +89,10 @@ def detect_image(model, file):
     raw_image = common.imread(file)
     if raw_image is None:
         raise ValueError(f"{file} is not a image file")
+    return detect_image_by_nparray(model, raw_image)
 
+
+def detect_image_by_nparray(model, raw_image: np.array) -> List[common.BBox]:
     scale_rate = _get_resize_rate(raw_image.shape[:2])
     image = cv2.resize(raw_image, (0, 0), fx=scale_rate, fy=scale_rate, interpolation=cv2.INTER_LINEAR)
 
@@ -101,7 +105,8 @@ def detect_image(model, file):
 
         return bboxes
     except RuntimeError:  # face too big
-        print(f"{file} run time error, out of memory")
+        print("run time error, out of memory")
+        raise
 
 
 def _get_model():

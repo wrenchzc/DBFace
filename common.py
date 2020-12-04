@@ -14,6 +14,7 @@ class BBox:
         self.landmark = landmark
         self.x, self.y, self.r, self.b = xyrb
         self.rotate = rotate
+        self.aligned_face = ""
         #避免出现rb小于xy的时候
         minx = min(self.x, self.r)
         maxx = max(self.x, self.r)
@@ -25,6 +26,13 @@ class BBox:
         landmark_formated = ",".join([str(item[:2]) for item in self.landmark]) if self.landmark is not None else "empty"
         return f"(BBox[{self.label}]: x={self.x:.2f}, y={self.y:.2f}, r={self.r:.2f}, " + \
             f"b={self.b:.2f}, width={self.width:.2f}, height={self.height:.2f}, landmark={landmark_formated})"
+
+    @property
+    def json(self):
+        bbox = [self.x, self.y, self.r, self.b]
+        landmark = list(self.landmark)
+
+        return dict(bbox=bbox, landmark=landmark, score=self.score, aligned_face=self.aligned_face)
 
     @property
     def width(self):
